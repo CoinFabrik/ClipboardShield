@@ -1,0 +1,15 @@
+*.~*
+*.suo
+*.ncb
+*.exp
+*.user
+*.sdf
+*.log
+*.obj
+*.ilk
+Bin/
+obj/
+Src/Driver/NektraDigitalCertificates/
+Src/Driver/obj*/
+Src/Driver/build*.log
+Src/Driver/PREfast*.*
