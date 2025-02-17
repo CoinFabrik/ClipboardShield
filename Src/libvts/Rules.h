@@ -216,11 +216,11 @@ public:
 				}else
 					throw std::runtime_error("Invalid configuration file");
 			}else if (split.first == L"allow"){
-				if (!indented)
+				if (!indented || !last_rule)
 					throw std::runtime_error("Invalid configuration file");
 				last_rule->add_second_party(split.second, FirewallPolicy::Allow);
 			}else if (split.first == L"deny"){if (!indented)
-				if (!indented)
+				if (!indented || !last_rule)
 					throw std::runtime_error("Invalid configuration file");
 				last_rule->add_second_party(split.second, FirewallPolicy::Deny);
 			}else if (split.first == L"source-allow"){
