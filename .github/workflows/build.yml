@@ -27,19 +27,19 @@ jobs:
         run: nuget restore Src/ClipboardFirewall.sln
 
       - name: Compiling CFManualInjector..
-        run: msbuild Src/ClipboardFirewall.sln /t:CFManualInjector /p:Configuration=Release /p:Platform=Win32
+        run: msbuild Src/ClipboardFirewall.sln /t:CFManualInjector /p:Configuration=Release /p:Platform=x64
 
       - name: Compiling ClipboardFirewallDll..
-        run: msbuild Src/ClipboardFirewall.sln /t:ClipboardFirewallDll /p:Configuration=Release /p:Platform=Win32
+        run: msbuild Src/ClipboardFirewall.sln /t:ClipboardFirewallDll /p:Configuration=Release /p:Platform=x64
 
       - name: Compiling InjectDll..
-        run: msbuild Src/ClipboardFirewall.sln /t:InjectDll /p:Configuration=Release /p:Platform=Win32
+        run: msbuild Src/ClipboardFirewall.sln /t:InjectDll /p:Configuration=Release /p:Platform=x64
 
       - name: Compiling code_generation..
-        run: msbuild Src/ClipboardFirewall.sln /t:code_generation /p:Configuration=Release /p:Platform=Win32
+        run: msbuild Src/ClipboardFirewall.sln /t:code_generation /p:Configuration=Release /p:Platform=x64
 
       - name: Compiling trayicon..
-        run: msbuild Src/ClipboardFirewall.sln /t:trayicon /p:Configuration=Release /p:Platform=Win32
+        run: msbuild Src/ClipboardFirewall.sln /t:trayicon /p:Configuration=Release /p:Platform=x64
 
       - name: Compiling ClipboardFirewallService..
         run: msbuild Src/ClipboardFirewall.sln /t:ClipboardFirewallService /p:Configuration=Release /p:Platform=x64
