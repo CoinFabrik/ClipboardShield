@@ -26,8 +26,27 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore Src/ClipboardFirewall.sln
 
-      - name: Build Solution
-        run: msbuild Src/ClipboardFirewall.sln /p:Configuration=Release /p:Platform=Win32
+      - name: Compiling CFManualInjector..
+        run: msbuild Src/ClipboardFirewall.sln /t:CFManualInjector /p:Configuration=Release /p:Platform=Win32
+
+      - name: Compiling ClipboardFirewallDll..
+        run: msbuild Src/ClipboardFirewall.sln /t:ClipboardFirewallDll /p:Configuration=Release /p:Platform=Win32
+
+      - name: Compiling InjectDll..
+        run: msbuild Src/ClipboardFirewall.sln /t:InjectDll /p:Configuration=Release /p:Platform=Win32
+
+      - name: Compiling code_generation..
+        run: msbuild Src/ClipboardFirewall.sln /t:code_generation /p:Configuration=Release /p:Platform=Win32
+
+      - name: Compiling trayicon..
+        run: msbuild Src/ClipboardFirewall.sln /t:trayicon /p:Configuration=Release /p:Platform=Win32
+
+      - name: Compiling ClipboardFirewallService..
+        run: msbuild Src/ClipboardFirewall.sln /t:ClipboardFirewallService /p:Configuration=Release /p:Platform=x64
+
+      - name: Compiling DriverInstaller..
+        run: msbuild Src/ClipboardFirewall.sln /t:DriverInstaller /p:Configuration=Release /p:Platform=x64
+
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
