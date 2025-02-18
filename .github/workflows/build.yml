@@ -27,7 +27,7 @@ jobs:
         run: nuget restore Src/ClipboardFirewall.sln
 
       - name: Build Solution
-        run: msbuild Src/ClipboardFirewall.sln /p:Configuration=Release
+        run: msbuild Src/ClipboardFirewall.sln /p:Configuration=Release /p:Platform=Win32
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
