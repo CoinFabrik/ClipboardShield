@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+             vs-version: '[14.0)'
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
