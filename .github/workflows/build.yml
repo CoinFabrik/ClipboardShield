@@ -12,8 +12,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    -- windows-2019 # Compatible con Visual Studio 2015
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,8 +20,8 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
         with:
-             vs-version: '14.0'
-             msbuild-architecture: x64 
+          vs-version: '14.0'
+          msbuild-architecture: x64
 
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
