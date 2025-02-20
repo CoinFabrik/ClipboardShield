@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2019 # Compatible con Visual Studio 2015
 
     steps:
       - name: Checkout repository
