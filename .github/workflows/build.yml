@@ -29,25 +29,25 @@ jobs:
         run: nuget restore Src/ClipboardFirewall.sln
 
       - name: Compiling CFManualInjector..
-        run: msbuild Src/CFManualInjector/CFManualInjector.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild Src/CFManualInjector/CFManualInjector.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v140
 
       - name: Compiling ClipboardFirewallDll..
-        run: msbuild Src/ClipboardFirewallDll/ClipboardFirewallDll.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild Src/ClipboardFirewallDll/ClipboardFirewallDll.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v140
 
       - name: Compiling InjectDll..
-        run: msbuild Src/InjectDll/InjectDll.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild Src/InjectDll/InjectDll.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v140
 
       - name: Compiling code_generation..
-        run: msbuild Src/code_generation/code_generation.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild Src/code_generation/code_generation.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v140
 
       - name: Compiling trayicon..
-        run: msbuild Src/trayicon/trayicon.csproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild Src/trayicon/trayicon.csproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v140
 
       - name: Compiling ClipboardFirewallService..
-        run: msbuild Src/ClipboardFirewallService/ClipboardFirewallService.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild Src/ClipboardFirewallService/ClipboardFirewallService.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v140
 
       - name: Compiling DriverInstaller..
-        run: msbuild Src/DriverInstaller/DriverInstaller.vcxproj /p:Configuration=Release /p:Platform=x64
+        run: msbuild Src/DriverInstaller/DriverInstaller.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v140
 
 
       - name: Upload Build Artifacts
