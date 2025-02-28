@@ -24,9 +24,6 @@ ArchitecturesInstallIn64BitMode=x64os
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-;[Tasks]
-;Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-
 [Files]
 Source: "{#SourceBasePath}\Src\bin\ClipboardFirewallDll32.dll"                              ; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#SourceBasePath}\Src\bin\CFManualInjector32.exe"                                  ; DestDir: "{app}\bin"; Flags: ignoreversion
