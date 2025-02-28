@@ -21,7 +21,7 @@ namespace trayicon
         private bool _running = true;
         private Thread _thread;
 
-        const string ServiceName = "ClipboardFirewall";
+        const string ServiceName = "ClipboardShield";
 
         public TrayIcon()
         {
