@@ -5,22 +5,21 @@
 #define SourceBasePath ".."
 
 [Setup]
-AppId={B0ED9BB2-232B-4CBB-BE71-1C17A4646E6F}
+AppId={{B0ED9BB2-232B-4CBB-BE71-1C17A4646E6F}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={commonpf}\{#MyAppName}
 DisableProgramGroupPage=yes
-LicenseFile={#SourceBasePath}\COPYING.txt
+LicenseFile={#SourceBasePath}\LICENSE
 OutputDir={#SourceBasePath}\bin64\
 OutputBaseFilename=Borderless_setup
-SetupIconFile=custom\icons\icon.ico
+SetupIconFile=icons\icon.ico
 Compression=lzma
 SolidCompression=yes
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x64os
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -31,9 +30,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 Source: "{#SourceBasePath}\Src\bin\ClipboardFirewallDll32.dll"                              ; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#SourceBasePath}\Src\bin\CFManualInjector32.exe"                                  ; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "{#SourceBasePath}\Src\bin\ClipboardFirewallService64.exe"                          ; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#SourceBasePath}\Src\bin\InjectDll32.exe"                                         ; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#SourceBasePath}\Src\bin\trayicon.exe"                                            ; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "{#SourceBasePath}\Src\bin64\ClipboardFirewallService64.exe"                        ; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#SourceBasePath}\Src\bin64\ClipboardFirewallDll64.dll"                            ; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#SourceBasePath}\Src\bin64\CFManualInjector64.exe"                                ; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#SourceBasePath}\Src\bin64\InjectDll64.exe"                                       ; DestDir: "{app}\bin"; Flags: ignoreversion
