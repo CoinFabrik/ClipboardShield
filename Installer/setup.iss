@@ -49,4 +49,4 @@ Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\bin\trayicon.exe"
 Filename: "{tmp}\ClipboardShield\DriverInstaller64.exe"; WorkingDir: "{tmp}\ClipboardShield"; StatusMsg: "Installing driver..."; Parameters: "-installdriver"; Flags: runhidden
 Filename: "{app}\bin\ClipboardFirewallService64.exe"; WorkingDir: "{app}\bin"; StatusMsg: "Installing service..."; Parameters: "-install"; Flags: runhidden
 Filename: "{sys}\net.exe"; Parameters: "start ClipboardShield"; Flags: nowait runhidden
-Filename: "{app}\bin\trayicon.exe"; Flags: runasoriginaluser
+Filename: "{app}\bin\trayicon.exe"; Flags: runasoriginaluser nowait
