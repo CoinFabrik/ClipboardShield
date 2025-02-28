@@ -6,8 +6,8 @@
 #include "Service.h"
 #include "FileLogger.h"
 
-#define SERVICE_NAME             L"ClipboardFirewall"
-#define SERVICE_DISPLAY_NAME     L"Nektra Clipboard Shield"
+#define SERVICE_NAME             L"ClipboardShield"
+#define SERVICE_DISPLAY_NAME     L"CoinFabrik Clipboard Shield"
 #define SERVICE_START_TYPE       SERVICE_AUTO_START
 
 void DebugPrint(__in_z LPWSTR format, ...){
