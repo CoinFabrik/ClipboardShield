@@ -1,0 +1,20 @@
+policy deny
+
+source-allow foo
+    deny bar
+--------------------------------------------------------------------------------
+allow a a
+deny a b
+deny a c
+deny b a
+allow b b
+deny b c
+deny c a
+deny c b
+allow c c
+allow foo a
+allow foo b
+allow foo c
+allow foo foo
+deny foo bar
+deny bar foo

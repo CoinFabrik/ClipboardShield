@@ -1,0 +1,11 @@
+policy allow
+--------------------------------------------------------------------------------
+allow a a
+allow a b
+allow a c
+allow b a
+allow b b
+allow b c
+allow c a
+allow c b
+allow c c

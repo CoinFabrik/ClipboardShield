@@ -1,0 +1,31 @@
+policy allow
+
+source-deny foo
+
+destination-deny bar
+--------------------------------------------------------------------------------
+allow a a
+allow a b
+allow a c
+allow b a
+allow b b
+allow b c
+allow c a
+allow c b
+allow c c
+deny foo a
+deny foo b
+deny foo c
+allow a foo
+allow b foo
+allow c foo
+allow bar a
+allow bar b
+allow bar c
+allow bar foo
+allow bar bar
+deny a bar
+deny b bar
+deny c bar
+deny foo bar
+allow foo foo

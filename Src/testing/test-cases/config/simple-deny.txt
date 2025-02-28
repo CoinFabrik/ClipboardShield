@@ -1,0 +1,11 @@
+policy deny
+--------------------------------------------------------------------------------
+allow a a
+deny a b
+deny a c
+deny b a
+allow b b
+deny b c
+deny c a
+deny c b
+allow c c
