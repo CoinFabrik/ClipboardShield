@@ -2,6 +2,7 @@
 #include "utility.h"
 #include "FileHash.h"
 #include "../common/sha256.hpp"
+#include "../libvts/constants.h"
 #ifdef max
 #undef max
 #endif
@@ -621,7 +622,7 @@ std::wstring get_config_directory(){
 		if (!std::filesystem::is_directory(root))
 			return {};
 
-		auto nektra = root / L"Nektra Clipboard Shield";
+		auto nektra = root / SERVICE_DISPLAY_NAME;
 
 		if (!std::filesystem::is_directory(nektra)){
 			std::filesystem::create_directory(nektra);

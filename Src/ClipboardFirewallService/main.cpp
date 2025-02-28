@@ -5,9 +5,8 @@
 #include "ServiceBase.h"
 #include "Service.h"
 #include "FileLogger.h"
+#include "../libvts/constants.h"
 
-#define SERVICE_NAME             L"ClipboardShield"
-#define SERVICE_DISPLAY_NAME     L"CoinFabrik Clipboard Shield"
 #define SERVICE_START_TYPE       SERVICE_AUTO_START
 
 void DebugPrint(__in_z LPWSTR format, ...){
