@@ -16,7 +16,9 @@
       ii.  ClipboardFirewallDll
       iii. InjectDll
    b. Build code_generation and trayicon.
-   c. Build ClipboardFirewallService and DriverInstaller for x64.
+4. Run hash_checker to validate that the hashes were generated correctly. If it
+   fails, rebuild code_generation.
+5. Build ClipboardFirewallService and DriverInstaller in Release for x64.
 
 
                                   INSTALLATION
