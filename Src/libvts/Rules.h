@@ -5,8 +5,11 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <algorithm>
 
-enum class FirewallPolicy{
+enum class FirewallPolicy : int{
+	None = 0,
 	Allow,
 	Deny,
 };
@@ -21,6 +24,8 @@ inline std::basic_ostream<T> &operator<<(std::basic_ostream<T> &stream, const GU
 
 inline const wchar_t *to_string(FirewallPolicy p){
 	switch (p){
+		case FirewallPolicy::None:
+			return L"none";
 		case FirewallPolicy::Allow:
 			return L"allow";
 		case FirewallPolicy::Deny:
@@ -40,15 +45,8 @@ public:
 		, default_policy(default_policy){}
 	FirewallRule(const FirewallRule &) = default;
 	FirewallRule &operator=(const FirewallRule &) = default;
-	FirewallRule(FirewallRule &&other){
-		*this = std::move(other);
-	}
-	const FirewallRule &operator=(FirewallRule &&other){
-		this->executable = other.executable;
-		this->default_policy = other.default_policy;
-		this->second_parties = std::move(other.second_parties);
-		return *this;
-	}
+	FirewallRule(FirewallRule &&other) = default;
+	FirewallRule &operator=(FirewallRule &&other) = default;
 	void add_second_party(const std::wstring &second_party, FirewallPolicy policy){
 		this->second_parties.emplace_back(second_party, policy);
 	}
@@ -124,7 +122,7 @@ class FirewallConfiguration{
 			return rule.check_permission(second_party, stream);
 		}
 		stream << L", using default policy";
-		return this->default_policy;
+		return FirewallPolicy::None;
 	}
 	FirewallPolicy check_permission(std::wstringstream &stream, const map_t &rules, const std::wstring &first_party) const{
 		stream << first_party;
@@ -134,7 +132,7 @@ class FirewallConfiguration{
 			return rule.check_permission(stream);
 		}
 		stream << L", using default policy";
-		return this->default_policy;
+		return FirewallPolicy::None;
 	}
 	static FirewallRule *add_rule(std::vector<FirewallRule> &src_rules, std::vector<FirewallRule> &dst_rules, const std::wstring &argument, bool source, bool allow){
 		auto &v = source ? src_rules : dst_rules;
@@ -146,6 +144,9 @@ class FirewallConfiguration{
 	}
 	void add_destination_rule(FirewallRule &&rule){
 		this->destination_rules.emplace_back(std::move(rule));
+	}
+	static FirewallPolicy max(FirewallPolicy a, FirewallPolicy b){
+		return a >= b ? a : b;
 	}
 public:
 	FirewallConfiguration(FirewallPolicy default_policy = FirewallPolicy::Allow): default_policy(default_policy){}
@@ -181,8 +182,18 @@ public:
 		explanation = stream.str();
 		return ret;
 	}
-	static FirewallConfiguration parse_config_file(const wchar_t *path){
-		auto data = process_newlines(load_utf8_file(path));
+	FirewallPolicy check_combined_permissions(const std::wstring &source, const std::wstring &destination, std::wstring &explanation) const{
+		auto a = this->check_permission_source(source, destination, explanation);
+		if (a == FirewallPolicy::Deny)
+			return a;
+		auto b = this->check_permission_destination(source, destination, explanation);
+		auto ret = max(a, b);
+		if (ret == FirewallPolicy::None)
+			ret = this->default_policy;
+		return ret;
+	}
+	static FirewallConfiguration parse_config_string(const std::wstring &input){
+		auto data = process_newlines(input);
 		std::wstringstream stream(data);
 
 		FirewallPolicy default_policy = FirewallPolicy::Allow;
@@ -250,6 +261,14 @@ public:
 			ret.add_destination_rule(std::move(rule));
 		return ret;
 	}
+	static FirewallConfiguration parse_config_string(const std::string &input){
+		std::wstring string;
+		utf8_to_string(string, (const std::uint8_t *)input.data(), input.size());
+		return parse_config_string(string);
+	}
+	static FirewallConfiguration parse_config_file(const wchar_t *path){
+		return parse_config_string(load_utf8_file(path));
+	}
 	std::wstring describe_rules() const{
 		std::wstringstream ret;
 		ret << L"Default policy: " << to_string(this->default_policy) << "\r\n"
@@ -261,4 +280,40 @@ public:
 			rule.describe(ret);
 		return ret.str();
 	}
+};
+
+class AbstractFirewall{
+protected:
+	FirewallConfiguration config;
+
+public:
+	AbstractFirewall() = default;
+	virtual ~AbstractFirewall(){}
+	virtual FirewallPolicy on_previously_unknown_state() const = 0;
+	FirewallPolicy run_permissions_logic(const std::wstring &source, const std::wstring &destination, std::wstring &explanation) const{
+		if (destination.empty()){
+			explanation = L"failed to get full path of destination process";
+			return FirewallPolicy::Allow;
+		}
+
+		if (source.empty()){
+			auto ret = this->config.check_permission_destination(destination, explanation);
+			if (ret == FirewallPolicy::Deny)
+				return ret;
+			explanation = L"previous state was unknown";
+			return this->on_previously_unknown_state();
+		}
+
+		if (source == destination){
+			explanation = L"source and destination are the same process";
+			return FirewallPolicy::Allow;
+		}
+
+		return this->config.check_combined_permissions(source, destination, explanation);
+	}
+	FirewallPolicy run_permissions_logic(const std::wstring &writer, const std::wstring &reader) const{
+		std::wstring ignored;
+		return this->run_permissions_logic(writer, reader, ignored);
+	}
+
 };

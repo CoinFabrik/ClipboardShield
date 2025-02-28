@@ -374,7 +374,7 @@ std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::in
 				auto &copy = queue.front();
 				std::wstring reader;
 				std::wstring explanation;
-				bool ok = this->check_copy(copy.payload.process, copy.payload.session, copy.payload.process_unique_id, explanation, &reader) == ClipboardPermission::Allow;
+				bool ok = this->check_copy(copy.payload.process, copy.payload.session, copy.payload.process_unique_id, explanation, &reader) == FirewallPolicy::Allow;
 				this->log() << "PID " << copy.payload.process << " (" << reader << ") from session " << copy.payload.session << " was waiting while pasting. Wait result: paste is "
 					<< (ok ? "" : "not ") << "allowed. Explanation: " << explanation;
 
@@ -401,7 +401,7 @@ void Interceptor::on_paste(const Payload &payload, const std::shared_ptr<Outgoin
 		LOCK_MUTEX(this->copies_in_progress_mutex);
 		delay = this->copies_in_progress.find(payload.session) != this->copies_in_progress.end();
 		if (!delay)
-			ok = this->check_copy(payload.process, payload.session, payload.process_unique_id, explanation, &reader) == ClipboardPermission::Allow;
+			ok = this->check_copy(payload.process, payload.session, payload.process_unique_id, explanation, &reader) == FirewallPolicy::Allow;
 	}
 	if (!delay){
 		this->log() << "PID " << payload.process << " (" << reader << ") from session " << payload.session << " wants to paste. Result: paste is "
@@ -428,7 +428,7 @@ void Interceptor::set_last_copy(std::uint32_t pid, std::uint32_t tid, std::uint3
 	this->last_clipboard_writers[session] = ClipboardWriter(std::move(filename), pid, tid, session, unique_id);
 }
 
-Interceptor::ClipboardPermission Interceptor::check_copy(std::uint32_t pid, std::uint32_t session, std::uint64_t unique_id, std::wstring &explanation, std::wstring *preader){
+FirewallPolicy Interceptor::check_copy(std::uint32_t pid, std::uint32_t session, std::uint64_t unique_id, std::wstring &explanation, std::wstring *preader){
 	std::wstring last_writer;
 	{
 		LOCK_MUTEX(this->last_clipboard_writers_mutex);
@@ -437,52 +437,16 @@ Interceptor::ClipboardPermission Interceptor::check_copy(std::uint32_t pid, std:
 			if (it->second.pid == pid && it->second.unique_id == unique_id){
 				explanation = L"source and destination are the same process";
 				//Always allow a process to copy to itself.
-				return ClipboardPermission::Allow;
+				return FirewallPolicy::Allow;
 			}
 			last_writer = it->second.path;
 		}
 	}
 	auto reader = this->get_process_full_path(pid);
-	ClipboardPermission ret;
-	if (!reader.size()){
-		explanation = L"failed to get full path of destination process";
-		ret = ClipboardPermission::Allow;
-	}else{
-		if (!last_writer.size()){
-			auto permission = this->check_permissions_destination(reader, explanation);
-			if (permission == ClipboardPermission::Deny)
-				return permission;
-			explanation = L"previous state was unknown";
-			ret = this->on_previously_unknown_state();
-		}else
-			ret = this->check_permissions_source(last_writer, reader, explanation);
-	}
+	auto ret = this->run_permissions_logic(last_writer, reader, explanation);
 	if (preader)
 		*preader = std::move(reader);
 	return ret;
-}
-
-Interceptor::ClipboardPermission Interceptor::to_ClipboardPermission(FirewallPolicy policy){
-	switch (policy){
-		case FirewallPolicy::Allow:
-			return ClipboardPermission::Allow;
-		case FirewallPolicy::Deny:
-			return ClipboardPermission::Deny;
-		default:
-			throw std::exception();
-	}
-}
-
-Interceptor::ClipboardPermission Interceptor::check_permissions_source(const std::wstring &writer, const std::wstring &reader, std::wstring &explanation){
-	return to_ClipboardPermission(this->config.check_permission_source(writer, reader, explanation));
-}
-
-Interceptor::ClipboardPermission Interceptor::check_permissions_destination(const std::wstring &writer, const std::wstring &reader, std::wstring &explanation){
-	return to_ClipboardPermission(this->config.check_permission_destination(writer, reader, explanation));
-}
-
-Interceptor::ClipboardPermission Interceptor::check_permissions_destination(const std::wstring &reader, std::wstring &explanation){
-	return to_ClipboardPermission(this->config.check_permission_destination(reader, explanation));
 }
 
 static std::string hash_file(const wchar_t *path, autohandle_t &file){

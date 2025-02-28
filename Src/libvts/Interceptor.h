@@ -62,10 +62,9 @@ struct WindowsVersionInformation{
 
 #pragma warning(push)
 #pragma warning(disable: 4275; disable: 4251)
-class LIBVTS_EXPORT Interceptor : private CDeviarePD{
+class LIBVTS_EXPORT Interceptor : private CDeviarePD, public AbstractFirewall{
 	AbstractLogger *logger;
 	const InterceptorMode mode;
-	FirewallConfiguration config;
 	std::atomic<bool> running = false;
 	std::atomic<bool> stopping = false;
 	std::thread configuration_monitor_thread,
@@ -178,18 +177,11 @@ class LIBVTS_EXPORT Interceptor : private CDeviarePD{
 
 	std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> internal_on_copy_end(const Payload &, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &);
 	void set_last_copy(std::uint32_t pid, std::uint32_t tid, std::uint32_t session, std::uint64_t unique_id);
-	enum class ClipboardPermission{
-		Allow,
-		Deny,
-	};
-	static ClipboardPermission to_ClipboardPermission(FirewallPolicy policy);
-	ClipboardPermission check_copy(std::uint32_t pid, std::uint32_t session, std::uint64_t unique_id, std::wstring &explanation, std::wstring *reader = nullptr);
-	ClipboardPermission on_previously_unknown_state(){
-		return ClipboardPermission::Allow;
+	static FirewallPolicy to_ClipboardPermission(FirewallPolicy policy);
+	FirewallPolicy check_copy(std::uint32_t pid, std::uint32_t session, std::uint64_t unique_id, std::wstring &explanation, std::wstring *reader = nullptr);
+	FirewallPolicy on_previously_unknown_state() const override{
+		return FirewallPolicy::Allow;
 	}
-	ClipboardPermission check_permissions_source(const std::wstring &writer, const std::wstring &reader, std::wstring &explanation);
-	ClipboardPermission check_permissions_destination(const std::wstring &writer, const std::wstring &reader, std::wstring &explanation);
-	ClipboardPermission check_permissions_destination(const std::wstring &reader, std::wstring &explanation);
 	bool can_hook_process(DWORD pid, const wchar_t *path);
 
 	void OnProcessCreated(DWORD pid) override;
