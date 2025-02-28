@@ -1,0 +1,11 @@
+policy allow
+
+source-deny c:\windows\system32\notepad.exe
+    allow c:\windows\system32\notepad.exe
+
+source-deny C:\Program Files\KeePass\KeePass.exe
+    allow C:\Program Files\Mozilla Firefox\firefox.exe
+    allow C:\Program Files\Google\Chrome\Application\chrome.exe
+
+source-allow C:\Program Files\Mozilla Firefox\firefox.exe
+    deny C:\Program Files\Google\Chrome\Application\chrome.exe
