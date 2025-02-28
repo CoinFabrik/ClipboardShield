@@ -15,10 +15,10 @@
       i.   CFManualInjector
       ii.  ClipboardFirewallDll
       iii. InjectDll
-   b. Build code_generation and trayicon.
-4. Run hash_checker to validate that the hashes were generated correctly. If it
-   fails, rebuild code_generation.
-5. Build ClipboardFirewallService and DriverInstaller in Release for x64.
+   b. Build code_generation and trayicon. Run hash_checker to validate that the
+      hashes were generated correctly. If the program detects an error, rebuild
+      code_generation.
+   c. Build ClipboardFirewallService and DriverInstaller for x64.
 
 
                                   INSTALLATION
