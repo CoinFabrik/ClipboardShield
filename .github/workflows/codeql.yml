@@ -12,12 +12,12 @@
 name: "CodeQL Advanced"
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-  schedule:
-    - cron: '35 0 * * 6'
+  --push:
+  --  branches: [ "master" ]
+  --pull_request:
+  --  branches: [ "master" ]
+  
+  workflow_dispatch: 
 
 jobs:
   analyze:
@@ -44,7 +44,7 @@ jobs:
       matrix:
         include:
         - language: c-cpp
-          build-mode: autobuild
+          build-mode: none
         - language: csharp
           build-mode: none
         - language: python
