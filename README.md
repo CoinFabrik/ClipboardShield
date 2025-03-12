@@ -1,8 +1,8 @@
 # 🛡️ Clipboard Shield
 
 🔐 Safeguard your privacy by preventing malicious applications from accessing sensitive data copied to the clipboard.
-Clipboard Shield is a project designed to monitor and protect the system clipboard from unauthorized access.
 
+Clipboard Shield is a project designed to monitor and protect the system clipboard from unauthorized access.
 
 ## ⭐️ Key Features
 - ✔️ Protection of clipboard content against unauthorized access.
@@ -18,36 +18,24 @@ Clipboard Shield is a project designed to monitor and protect the system clipboa
 
 ## 🔨 Building from Source
 
-### **Requirements**
-- Visual Studio 2022
-- Boost 1.76 or newer
-
-### **Instructions**
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/CoinFabrik/ClipboardShield.git
-   ```
-2. Open `Src\ClipboardFirewall.sln` in Visual Studio.
-3. Build projects in **Release** in the following order:
-   - **Batch build for all platforms:**
-     1. CFManualInjector
-     2. ClipboardFirewallDll
-     3. InjectDll
-   - Build **code_generation** and **trayicon**.
-   - Run `hash_checker` to validate the hashes. If errors occur, rebuild **code_generation**.
-   - Build **ClipboardFirewallService** and **DriverInstaller** for x64.
+For users who prefer to build from source, follow the detailed instructions available at the documentation: [Build from Source](doc/BuildFromSource.md).
 
 ## ⚙️ Installation from Binary
 
+### Supported Platform
+
+* Tested on: Windows 10
+* Requeriments:
+  * Windows 10 (64-bit)
+  * Administrator privileged (need for installation)
+ 
+### Installation Steps   
+
 1. Download the latest binary release from [GitHub Releases](https://github.com/CoinFabrik/ClipboardShield/releases) 
-2. Execute Binary
-3. Run `trayicon.exe` to monitor the service status.
+2. Execute Binary `ClipboardShield.exe` to install the application.
+3. Run `trayicon.exe` to monitor the service status. the application should be running in the system tray.
 
-## Usage
-
-
-
-## 🧪 Testing
+## Usage / 🧪 Testing
 To verify the security measures:
 - Use a clipboard monitoring tool to check if unauthorized access is blocked.
 - Run a script that attempts to read the clipboard and confirm that access is denied.
