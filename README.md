@@ -12,10 +12,6 @@ Clipboard Shield is a project designed to monitor and protect the system clipboa
 - ✔️ Logging capabilities for security auditing.
 - ✔️ Windows service integration for continuous protection.
 
-## 🚀 **Demo**
-🔧 [Coming Soon] – A demo video or screenshots will be added.
-
-
 ## 🔨 Building from Source
 
 For users who prefer to build from source, follow the detailed instructions available at the documentation: [Build from Source](doc/BuildFromSource.md).
@@ -27,15 +23,15 @@ For users who prefer to build from source, follow the detailed instructions avai
 * Tested on: Windows 10
 * Requeriments:
   * Windows 10 (64-bit)
-  * Administrator privileged (need for installation)
+  * Administrator privileged (required for installation)
  
 ### Installation Steps   
 
 1. Download the latest binary release from [GitHub Releases](https://github.com/CoinFabrik/ClipboardShield/releases) 
-2. Execute Binary `ClipboardShield.exe` to install the application.
-3. Run `trayicon.exe` to monitor the service status. the application should be running in the system tray.
+2. Run `ClipboardShield.exe` to install the application.
+3. Launch `trayicon.exe` to monitor the service status. The application should be running in the system tray.
 
-## Usage / 🧪 Testing
+## 📌 Usage Examples
 To verify the security measures:
 - Use a clipboard monitoring tool to check if unauthorized access is blocked.
 - Run a script that attempts to read the clipboard and confirm that access is denied.
