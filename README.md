@@ -1,8 +1,8 @@
 # 🛡️ Clipboard Shield
 
+🔐 Safeguard your privacy by preventing malicious applications from accessing sensitive data copied to the clipboard.
 Clipboard Shield is a project designed to monitor and protect the system clipboard from unauthorized access.
 
-🔐 Safeguard your privacy by preventing malicious applications from accessing sensitive data copied to the clipboard.
 
 ## ⭐️ Key Features
 - ✔️ Protection of clipboard content against unauthorized access.
@@ -39,34 +39,13 @@ Clipboard Shield is a project designed to monitor and protect the system clipboa
 
 ## ⚙️ Installation from Binary
 
-1. Download the latest binary release from GitHub Releases.
-2. Extract Binary
-1. Create a directory (`%DST%`) to store the executable files (e.g., `C:\Program Files\CoinFabrik\Clipboard Firewall`). Copy the following files:
-   - `Src\bin\ClipboardFirewallDll32.dll`
-   - `Src\bin\CFManualInjector32.exe`
-   - `Src\bin\InjectDll32.exe`
-   - `Src\bin\trayicon.exe`
-   - `Src\bin64\ClipboardFirewallDll64.dll`
-   - `Src\bin64\ClipboardFirewallService64.exe`
-   - `Src\bin64\CFManualInjector64.exe`
-   - `Src\bin64\InjectDll64.exe`
-2. Move `driver_binary\x64\DeviarePD.sys` to `Src\bin64\Drivers\Vista\DeviarePD.sys`.
-3. (Admin) From inside `Src\bin64`, run:
-   ```sh
-   DriverInstaller64.exe -installdriver
-   ```
-4. Create the config file at `%ProgramData%\CoinFabrik Clipboard Shield\config.txt` (refer to `/doc/sample/c/ProgramData/CoinFabrik Clipboard Shield/config.txt`).
-5. (Admin) From inside `%DST%`, run:
-   ```sh
-   ClipboardFirewallService64.exe -install
-   ```
-6. (Admin) Start the service:
-   ```sh
-   net start ClipboardShield
-   ```
-7. Run `trayicon.exe` to monitor the service status.
+1. Download the latest binary release from [GitHub Releases](https://github.com/CoinFabrik/ClipboardShield/releases) 
+2. Execute Binary
+3. Run `trayicon.exe` to monitor the service status.
 
 ## Usage
+
+
 
 ## 🧪 Testing
 To verify the security measures:
