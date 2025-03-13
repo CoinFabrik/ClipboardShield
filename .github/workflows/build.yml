@@ -33,23 +33,23 @@ jobs:
         run: msbuild Src/CFManualInjector/CFManualInjector.vcxproj /p:Configuration=Release /p:Platform=x86 
 
       - name: Compiling ClipboardFirewallDll..
-        run: msbuild Src/ClipboardFirewallDll/ClipboardFirewallDll.vcxproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="Deviare-InProc\Include"
+        run: msbuild Src/ClipboardFirewallDll/ClipboardFirewallDll.vcxproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="..\Deviare-InProc\Include"
 
       - name: Compiling InjectDll..
-        run: msbuild Src/InjectDll/InjectDll.vcxproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="Deviare-InProc\Include"
+        run: msbuild Src/InjectDll/InjectDll.vcxproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="..\Deviare-InProc\Include"
 
       - name: Compiling code_generation..
-        run: msbuild Src/code_generation/code_generation.vcxproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="Deviare-InProc\Include"
+        run: msbuild Src/code_generation/code_generation.vcxproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="..\Deviare-InProc\Include"
 
       - name: Compiling trayicon..
-        run: msbuild Src/trayicon/trayicon.csproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="Deviare-InProc\Include"
+        run: msbuild Src/trayicon/trayicon.csproj /p:Configuration=Release /p:Platform=x86 /p:AdditionalIncludeDirectories="..\Deviare-InProc\Include"
 
       - name: Compiling ClipboardFirewallService..
-        run: msbuild Src/ClipboardFirewallService/ClipboardFirewallService.vcxproj /p:Configuration=Release /p:Platform=x64 /p:AdditionalIncludeDirectories="Deviare-InProc\Include"
+        run: msbuild Src/ClipboardFirewallService/ClipboardFirewallService.vcxproj /p:Configuration=Release /p:Platform=x64 /p:AdditionalIncludeDirectories="..\Deviare-InProc\Include"
 
 
       - name: Compiling DriverInstaller..
-        run: msbuild Src/DriverInstaller/DriverInstaller.vcxproj /p:Configuration=Release /p:Platform=x64 /p:AdditionalIncludeDirectories="Deviare-InProc\Include"
+        run: msbuild Src/DriverInstaller/DriverInstaller.vcxproj /p:Configuration=Release /p:Platform=x64 /p:AdditionalIncludeDirectories="..\Deviare-InProc\Include"
 
 
       - name: Upload Build Artifacts
