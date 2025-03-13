@@ -34,6 +34,9 @@ namespace hash_checker
                 }
             }
 
+            if (ok)
+                Console.WriteLine("No errors.");
+
             Console.WriteLine("Press ENTER to continue.");
             Console.ReadLine();
 
