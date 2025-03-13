@@ -22,7 +22,7 @@ For users who prefer to build from source, follow the detailed instructions avai
 
 * Tested on: Windows 10
 * Requeriments:
-  * Windows 10 (64-bit)
+  * Windows 10 (64-bit) or Windows 11
   * Administrator privileged (required for installation)
  
 ### Installation Steps   
@@ -38,7 +38,8 @@ To verify the security measures:
 - Check the log files for any recorded access attempts
 
 ### Sample config.txt
-```policy allow
+```
+policy allow
 
 source-deny c:\windows\system32\notepad.exe
     allow c:\windows\system32\notepad.exe
@@ -55,6 +56,23 @@ Explanation:
 * Data copied from Notepad can only be pasted into Notepad.
 * Data copied from KeePass can only be pasted into Firefox and Chrome.
 * Data copied from Firefox cannot be pasted into Chrome
+
+## Log file example
+```
+[2025-03-13 18:00:46.632] Loading configuration from C:\ProgramData\CoinFabrik Clipboard Shield\config.txt
+[2025-03-13 18:00:46.652] Configuration description:
+Default policy: allow
+Source rules:
+first party c:\windows\system32\notepad.exe: default deny
+    second party c:\windows\system32\notepad.exe -> allow
+first party C:\Program Files\KeePass\KeePass.exe: default deny
+    second party C:\Program Files\Mozilla Firefox\firefox.exe -> allow
+    second party C:\Program Files\Google\Chrome\Application\chrome.exe -> allow
+first party C:\Program Files\Mozilla Firefox\firefox.exe: default allow
+    second party C:\Program Files\Google\Chrome\Application\chrome.exe -> deny
+Destination rules:
+
+```
 
 
 ## 💡 Contribution
