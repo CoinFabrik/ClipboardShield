@@ -1,5 +1,5 @@
 #define MyAppName "Clipboard Shield"
-#define MyAppVersion "20250305"
+#define MyAppVersion "20250313"
 #define MyAppURL "https://github.com/CoinFabrik/ClipboardShield"
 #define MyAppExeName "trayicon.exe"
 #define SourceBasePath ".."
