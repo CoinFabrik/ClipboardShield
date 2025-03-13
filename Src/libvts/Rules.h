@@ -53,7 +53,7 @@ public:
 	FirewallPolicy check_permission(const std::wstring &second_party, std::wstringstream &explanation) const{
 		explanation << L", second_party = " << second_party;
 		for (auto &sp : this->second_parties){
-			if (paths_are_equivalent(second_party, sp.first) <= 0)
+			if (paths_are_equivalent(second_party, sp.first, true) <= 0)
 				continue;
 			explanation << ", using specific rule";
 			return sp.second;
@@ -117,7 +117,7 @@ class FirewallConfiguration{
 	FirewallPolicy check_permission(std::wstringstream &stream, const map_t &rules, const std::wstring &first_party, const std::wstring &second_party) const{
 		stream << first_party;
 		for (auto &rule : rules){
-			if (paths_are_equivalent(first_party, rule.get_executable()) <= 0)
+			if (paths_are_equivalent(first_party, rule.get_executable(), true) <= 0)
 				continue;
 			return rule.check_permission(second_party, stream);
 		}
@@ -127,7 +127,7 @@ class FirewallConfiguration{
 	FirewallPolicy check_permission(std::wstringstream &stream, const map_t &rules, const std::wstring &first_party) const{
 		stream << first_party;
 		for (auto &rule : rules){
-			if (paths_are_equivalent(first_party, rule.get_executable()) <= 0)
+			if (paths_are_equivalent(first_party, rule.get_executable(), true) <= 0)
 				continue;
 			return rule.check_permission(stream);
 		}
