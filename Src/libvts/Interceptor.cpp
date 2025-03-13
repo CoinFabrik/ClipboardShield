@@ -339,11 +339,13 @@ static bool copy_succeeded(const Payload &payload){
 }
 
 std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::internal_on_copy_end(const Payload &payload, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &connection){
+	std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> ret;
+
 	LOCK_MUTEX(this->copies_in_progress_mutex);
 	auto it = this->copies_in_progress.find(payload.session);
 	if (it == this->copies_in_progress.end()){
 		//This should never happen.
-		return {};
+		return ret;
 	}
 
 	{
@@ -354,7 +356,7 @@ std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::in
 			it2->second.pop_front();
 			it->second = object;
 			this->log() << "PID " << object.payload.process << " from session " << object.payload.session << " begins copy (resumed).";
-			return object.connection;
+			ret = object.connection;
 		}
 	}
 
@@ -383,7 +385,7 @@ std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::in
 		}
 	}
 
-	return {};
+	return ret;
 }
 
 void Interceptor::on_copy_end(const Payload &payload, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &connection){
