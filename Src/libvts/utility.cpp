@@ -91,6 +91,8 @@ autohandle_t open_file_for_normal_read2(const wchar_t *path, bool no_throw = fal
 		if (no_throw)
 			return nullptr;
 		auto error = GetLastError();
+		if (error == ERROR_FILE_NOT_FOUND)
+			return nullptr;
 		std::string context = "Opening file ";
 		for (auto p = path; *p; p++)
 			context += (char)*p;
