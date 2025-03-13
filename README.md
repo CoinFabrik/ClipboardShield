@@ -37,6 +37,26 @@ To verify the security measures:
 - Run a script that attempts to read the clipboard and confirm that access is denied.
 - Check the log files for any recorded access attempts
 
+### Sample config.txt
+```policy allow
+
+source-deny c:\windows\system32\notepad.exe
+    allow c:\windows\system32\notepad.exe
+
+source-deny C:\Program Files\KeePass\KeePass.exe
+    allow C:\Program Files\Mozilla Firefox\firefox.exe
+    allow C:\Program Files\Google\Chrome\Application\chrome.exe
+
+source-allow C:\Program Files\Mozilla Firefox\firefox.exe
+    deny C:\Program Files\Google\Chrome\Application\chrome.exe
+```
+Explanation:
+* By default, any application can copy text to any other application.
+* Data copied from Notepad can only be pasted into Notepad.
+* Data copied from KeePass can only be pasted into Firefox and Chrome.
+* Data copied from Firefox cannot be pasted into Chrome
+
+
 ## 💡 Contribution
 If you would like to contribute:
 - Fork the repository.
