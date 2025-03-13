@@ -45,10 +45,11 @@ jobs:
         run: msbuild Src/trayicon/trayicon.csproj /p:Configuration=Release /p:Platform=x86 
 
       - name: Compiling ClipboardFirewallService..
-        run: msbuild Src/ClipboardFirewallService/ClipboardFirewallService.vcxproj /p:Configuration=Release /p:Platform=x64 
+        run: msbuild Src/ClipboardFirewallService/ClipboardFirewallService.vcxproj /p:Configuration=Release /p:Platform=x64 p:AdditionalIncludeDirectories="Deviare-InProc\Include"
+
 
       - name: Compiling DriverInstaller..
-        run: msbuild Src/DriverInstaller/DriverInstaller.vcxproj /p:Configuration=Release /p:Platform=x64 
+        run: msbuild Src/DriverInstaller/DriverInstaller.vcxproj /p:Configuration=Release /p:Platform=x64 :AdditionalIncludeDirectories="Deviare-InProc\Include"
 
 
       - name: Upload Build Artifacts
