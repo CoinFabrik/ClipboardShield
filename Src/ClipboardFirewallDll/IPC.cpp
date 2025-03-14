@@ -40,12 +40,12 @@ protected:
 public:
 	CustomIncomingSharedMemory(const wchar_t *shared_memory_path, const wchar_t *event_path, HANDLE outgoing_event, thread_constructor_t tc): IncomingSharedMemory(shared_memory_path, event_path, tc){
 		this->outgoing_event = outgoing_event;
-		this->event = create_event();
+		this->event = create_event(false);
 		this->thread->start();
 	}
 	CustomIncomingSharedMemory(basic_shared_memory_block<return_shared_memory_size> *mem, HANDLE event, HANDLE outgoing_event, thread_constructor_t tc): IncomingSharedMemory(mem, event, tc){
 		this->outgoing_event = outgoing_event;
-		this->event = create_event();
+		this->event = create_event(false);
 		this->thread->start();
 	}
 	~CustomIncomingSharedMemory(){

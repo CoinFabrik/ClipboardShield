@@ -27,7 +27,6 @@ typedef std::unique_ptr<std::remove_pointer<HKEY>::type, HkeyReleaser> autohkey_
 void release_handle(HANDLE h);
 autohandle_t to_autohandle(HANDLE h);
 autohkey_t to_autohandle(HKEY h);
-autohandle_t create_event();
 void safe_join(std::thread &thread);
 std::wstring s2ws(const std::string &);
 std::string ws2s(const std::wstring &);

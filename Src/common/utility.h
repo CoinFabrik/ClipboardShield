@@ -140,8 +140,8 @@ inline bool invalid_handle(HANDLE h){
 	return !h || h == INVALID_HANDLE_VALUE;
 }
 
-inline autohandle_t create_event(){
-	autohandle_t ret(CreateEvent(nullptr, true, false, nullptr));
+inline autohandle_t create_event(bool manual_reset = true){
+	autohandle_t ret(CreateEvent(nullptr, manual_reset, false, nullptr));
 	if (!ret)
 		report_failed_win32_function("CreateEvent", GetLastError());
 	return ret;
