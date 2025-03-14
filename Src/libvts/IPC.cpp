@@ -43,33 +43,38 @@ IPC::IPC(Interceptor &interceptor)
 IPC::~IPC(){}
 
 void IPC::handle_message(const Payload &payload){
-	switch ((RequestType)payload.type){
+	switch ((RequestType)payload.data.type){
 		case RequestType::Connection:
-			this->handle_connection(payload.process, payload.session, payload.process_unique_id);
+			this->handle_connection(payload.data.process, payload.data.session, payload.data.process_unique_id);
 			break;
 		case RequestType::CopyBegin:
-			this->interceptor->on_copy_begin(payload, this->find_connection(payload.process));
+			this->interceptor->on_copy_begin(payload, this->find_connection(payload));
 			break;
 		case RequestType::CopyEnd:
-			this->interceptor->on_copy_end(payload, this->find_connection(payload.process));
+			this->interceptor->on_copy_end(payload, this->find_connection(payload));
 			break;
 		case RequestType::Paste:
-			this->interceptor->on_paste(payload, this->find_connection(payload.process));
+			this->interceptor->on_paste(payload, this->find_connection(payload));
 			break;
 		default:
 			{
 				std::stringstream stream;
-				stream << "IPC::handle_message(): Missing case for RequestType: " << (LONG)payload.type;
+				stream << "IPC::handle_message(): Missing case for RequestType: " << (LONG)payload.data.type;
 				throw std::runtime_error(stream.str());
 			}
 	}
 }
 
-std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> IPC::find_connection(std::uint32_t pid){
-	auto it = this->return_paths.find(pid);
-	if (it == this->return_paths.end())
-		return {};
-	return it->second;
+std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> IPC::find_connection(const Payload &payload){
+	auto it = this->return_paths.find(payload.data.process);
+	if (it != this->return_paths.end())
+		return it->second;
+	try{
+		return this->connect_return_path(payload.data.process, payload.data.session, payload.data.process_unique_id);
+	}catch (std::exception &e){
+		this->interceptor->log() << "Failed to reconnect with PID " << payload.data.process << ". Error: " << e.what();
+	}
+	return {};
 }
 
 void IPC::handle_connection(DWORD pid, DWORD session, std::uint64_t unique_id){
@@ -99,7 +104,8 @@ static std::wstring build_event_path(DWORD pid, DWORD session, std::uint64_t id)
 	return stream.str();
 }
 
-void IPC::connect_return_path(DWORD pid, DWORD session, std::uint64_t unique_id){
+IPC::P IPC::connect_return_path(DWORD pid, DWORD session, std::uint64_t unique_id){
+	P ret;
 	for (int i = 0; ; i++){
 		auto path = build_shared_path(pid, session, unique_id);
 		auto event_path = build_event_path(pid, session, unique_id);
@@ -107,8 +113,9 @@ void IPC::connect_return_path(DWORD pid, DWORD session, std::uint64_t unique_id)
 			auto return_path = std::make_shared<OutgoingSharedMemory<return_shared_memory_size>>(path.c_str(), event_path.c_str());
 			this->return_paths[pid] = return_path;
 			return_path->send(RequestType::ConnectionConfirmation);
+			ret = std::move(return_path);
 			break;
-		}catch (std::exception &e){
+		}catch (std::exception &){
 			//If opening the shared memory failed, it could be because the process was
 			//injected by the manual injector, which runs in session 0 and thus creates
 			//the shared memory in that session, so retry with session 0. If it fails
@@ -118,6 +125,7 @@ void IPC::connect_return_path(DWORD pid, DWORD session, std::uint64_t unique_id)
 			session = 0;
 		}
 	}
+	return ret;
 }
 
 bool IPC::complete_connection(std::uint32_t id, autohandle_t &&connection_event){

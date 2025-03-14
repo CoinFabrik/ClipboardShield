@@ -9,18 +9,20 @@
 #include <vector>
 #include <map>
 #include <mutex>
+#include <optional>
 #include <Windows.h>
 
 class Interceptor;
 
 class IPC : public IncomingSharedMemory<std::mutex, shared_memory_size>{
 	Interceptor *interceptor;
-	std::map<std::uint32_t, std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>>> return_paths;
+	typedef std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> P;
+	std::map<std::uint32_t, P> return_paths;
 
 	void handle_message(const Payload &) override;
 	void handle_connection(DWORD pid, DWORD session, std::uint64_t unique_id);
-	void connect_return_path(DWORD pid, DWORD session, std::uint64_t unique_id);
-	std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> find_connection(std::uint32_t);
+	P connect_return_path(DWORD pid, DWORD session, std::uint64_t unique_id);
+	P find_connection(const Payload &);
 public:
 	IPC(Interceptor &);
 	~IPC();

@@ -65,8 +65,13 @@ struct WindowsVersionInformation{
 class LIBVTS_EXPORT Interceptor : private CDeviarePD, public AbstractFirewall{
 	AbstractLogger *logger;
 	const InterceptorMode mode;
-	std::atomic<bool> running = false;
-	std::atomic<bool> stopping = false;
+	enum class Status{
+		Stopped,
+		Starting,
+		Running,
+		Stopping,
+	};
+	std::atomic<Status> status = Status::Stopped;
 	std::thread configuration_monitor_thread,
 		process_polling_thread;
 	QueryFullProcessImageNameW_f QueryFullProcessImageNameW_fp = nullptr;
@@ -175,7 +180,7 @@ class LIBVTS_EXPORT Interceptor : private CDeviarePD, public AbstractFirewall{
 	std::wstring build_command_line2(int, const std::wstring &, DWORD, const std::wstring &);
 	const std::wstring &get_dll_directory();
 
-	std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> internal_on_copy_end(const Payload &, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &);
+	std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> internal_on_copy_end(const Payload &);
 	void set_last_copy(std::uint32_t pid, std::uint32_t tid, std::uint32_t session, std::uint64_t unique_id);
 	static FirewallPolicy to_ClipboardPermission(FirewallPolicy policy);
 	FirewallPolicy check_copy(std::uint32_t pid, std::uint32_t session, std::uint64_t unique_id, std::wstring &explanation, std::wstring *reader = nullptr);
@@ -183,6 +188,7 @@ class LIBVTS_EXPORT Interceptor : private CDeviarePD, public AbstractFirewall{
 		return FirewallPolicy::Allow;
 	}
 	bool can_hook_process(DWORD pid, const wchar_t *path);
+	bool threads_must_continue();
 
 	void OnProcessCreated(DWORD pid) override;
 	void OnProcessCreated_throwing(DWORD pid);

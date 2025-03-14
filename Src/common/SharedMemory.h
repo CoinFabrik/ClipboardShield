@@ -92,7 +92,7 @@ public:
 	bool send(RequestType type){
 		Payload payload;
 		zero_structure(payload);
-		payload.type = type;
+		payload.data.type = type;
 		return this->send(payload);
 	}
 	void *get_pointer() const{

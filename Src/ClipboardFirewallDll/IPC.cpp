@@ -17,10 +17,10 @@ protected:
 	static const size_t max_queue_size = 1024;
 	HANDLE outgoing_event;
 
-	void handle_message(const Payload &p) override{
+	void handle_message(const Payload &payload) override{
 		if (this->destroying)
 			return;
-		if (p.type == RequestType::ConnectionConfirmation){
+		if (payload.data.type == RequestType::ConnectionConfirmation){
 			auto event = this->get_process_event_weak(0);
 			if (!event)
 				//This shouldn't happen.
@@ -30,9 +30,9 @@ protected:
 		}
 		{
 			LOCK_MUTEX(this->mutex);
-			while (this->queue.size() >= max_queue_size && this->queue.size())
+			while (this->queue.size() >= max_queue_size && !this->queue.empty())
 				this->queue.pop_front();
-			this->queue.push_back(p);
+			this->queue.push_back(payload);
 			SetEvent(this->event.get());
 		}
 	}
@@ -60,10 +60,10 @@ public:
 		while (true){
 			Payload ret;
 			if (WaitForSingleObject(this->event.get(), to) == WAIT_TIMEOUT)
-				ret.type = RequestType::Timeout;
+				ret.data.type = RequestType::Timeout;
 			else{
 				LOCK_MUTEX(this->mutex);
-				if (!this->queue.size())
+				if (this->queue.empty())
 					continue;
 				ret = this->queue.front();
 				this->queue.pop_front();
@@ -157,11 +157,12 @@ void IPC::complete_connection(){
 Payload IPC::construct_payload(RequestType type){
 	Payload ret;
 	zero_structure(ret);
-	ret.type = type;
-	ret.process = this->pid;
-	ret.session = this->session;
-	ret.process_unique_id = this->unique_id;
-	ret.thread = GetCurrentThreadId();
+	auto &data = ret.data;
+	data.type = type;
+	data.process = this->pid;
+	data.session = this->session;
+	data.process_unique_id = this->unique_id;
+	data.thread = GetCurrentThreadId();
 	return ret;
 }
 
@@ -170,9 +171,9 @@ int IPC::send_and_wait(const Payload &payload, int timeout){
 	this->incoming->clear_queue();
 	this->outgoing->send(payload);
 	auto result = this->incoming->wait_for_data(timeout);
-	if (result.type == RequestType::Timeout)
+	if (result.data.type == RequestType::Timeout)
 		return -1;
-	return result.type == RequestType::Continue;
+	return result.data.type == RequestType::Continue;
 }
 
 int IPC::send_copy_begin(){

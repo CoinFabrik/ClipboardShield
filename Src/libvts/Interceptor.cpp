@@ -173,10 +173,9 @@ WindowsVersionInformation get_windows_version(){
 }
 
 void Interceptor::start(){
-	if (this->running)
+	auto expected = Status::Stopped;
+	if (!this->status.compare_exchange_strong(expected, Status::Starting))
 		return;
-
-	this->stopping = false;
 
 	{
 		auto kernel32 = LoadLibraryW(L"kernel32.dll");
@@ -201,21 +200,18 @@ void Interceptor::start(){
 
 	this->hook_running_processes();
 
-	this->running = true;
+	this->status = Status::Running;
 	if (use_fallback)
 		this->process_polling_thread = this->create_thread([this](){ this->process_polling_thread_function(); });
 }
 
 void Interceptor::stop(){
-	bool old_value = false;
-	if (!this->stopping.compare_exchange_strong(old_value, true))
+	auto expected = Status::Running;
+	if (!this->status.compare_exchange_strong(expected, Status::Stopping))
 		return;
-	if (this->running){
-		safe_join(this->process_polling_thread);
-		safe_join(this->configuration_monitor_thread);
-		this->running = false;
-	}
-	this->stopping = false;
+	safe_join(this->process_polling_thread);
+	safe_join(this->configuration_monitor_thread);
+	this->status = Status::Stopped;
 }
 
 static void signal_critical_event(const wchar_t *event_name, const char *extra_error = nullptr){
@@ -248,10 +244,10 @@ std::vector<T> set_diff(const std::vector<T> &x, const std::vector<T> &y){
 
 void Interceptor::process_polling_thread_function(){
 	auto set = to_set(this->get_running_processes(true));
-	while (this->running){
+	while (this->threads_must_continue()){
 		for (int i = 4; i--;){
 			std::this_thread::sleep_for(std::chrono::milliseconds(250));
-			if (!this->running)
+			if (!this->threads_must_continue())
 				return;
 		}
 
@@ -309,26 +305,27 @@ std::vector<RunningProcess> Interceptor::get_running_processes(bool lightweight)
 }
 
 static bool contains_session(const std::vector<Payload> &ps, const Payload &p){
-	return std::find_if(ps.begin(), ps.end(), [&p](const Payload &p2){ return p2.session == p.session; }) != ps.end();
+	return std::find_if(ps.begin(), ps.end(), [&p](const Payload &p2){ return p2.data.session == p.data.session; }) != ps.end();
 }
 
 void Interceptor::on_copy_begin(const Payload &payload, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &connection){
 	bool delay;
 	{
 		LOCK_MUTEX(this->copies_in_progress_mutex);
-		delay = this->copies_in_progress.find(payload.session) != this->copies_in_progress.end();
+		delay = this->copies_in_progress.find(payload.data.session) != this->copies_in_progress.end();
 		if (!delay)
-			this->copies_in_progress[payload.session] = {payload, connection};
+			this->copies_in_progress[payload.data.session] = {payload, connection};
 	}
 	if (!delay){
-		this->log() << "PID " << payload.process << " from session " << payload.session << " begins copy.";
-		connection->send(RequestType::Continue);
+		this->log() << "PID " << payload.data.process << " from session " << payload.data.session << " begins copy.";
+		if (connection)
+			connection->send(RequestType::Continue);
 	}else{
-		this->log() << "PID " << payload.process << " from session " << payload.session << " wants to begin copy but will wait.";
+		this->log() << "PID " << payload.data.process << " from session " << payload.data.session << " wants to begin copy but will wait.";
 		LOCK_MUTEX(this->copies_waiting_mutex);
-		auto it = this->copies_waiting.find(payload.session);
+		auto it = this->copies_waiting.find(payload.data.session);
 		if (it == this->copies_waiting.end())
-			it = this->copies_waiting.insert({payload.session, {}}).first;
+			it = this->copies_waiting.insert({payload.data.session, {}}).first;
 		it->second.push_back({payload, connection});
 	}
 }
@@ -338,11 +335,11 @@ static bool copy_succeeded(const Payload &payload){
 	return !!payload.extra_data[0];
 }
 
-std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::internal_on_copy_end(const Payload &payload, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &connection){
+std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::internal_on_copy_end(const Payload &payload){
 	std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> ret;
 
 	LOCK_MUTEX(this->copies_in_progress_mutex);
-	auto it = this->copies_in_progress.find(payload.session);
+	auto it = this->copies_in_progress.find(payload.data.session);
 	if (it == this->copies_in_progress.end()){
 		//This should never happen.
 		return ret;
@@ -350,12 +347,12 @@ std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::in
 
 	{
 		LOCK_MUTEX(this->copies_waiting_mutex);
-		auto it2 = this->copies_waiting.find(payload.session);
+		auto it2 = this->copies_waiting.find(payload.data.session);
 		if (it2 != this->copies_waiting.end() && it2->second.size()){
 			auto object = it2->second.front();
 			it2->second.pop_front();
 			it->second = object;
-			this->log() << "PID " << object.payload.process << " from session " << object.payload.session << " begins copy (resumed).";
+			this->log() << "PID " << object.payload.data.process << " from session " << object.payload.data.session << " begins copy (resumed).";
 			ret = object.connection;
 		}
 	}
@@ -363,21 +360,21 @@ std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::in
 	this->copies_in_progress.erase(it);
 
 	if (copy_succeeded(payload))
-		this->set_last_copy(payload.process, payload.thread, payload.session, payload.process_unique_id);
+		this->set_last_copy(payload.data.process, payload.data.thread, payload.data.session, payload.data.process_unique_id);
 	else
-		this->log() << "PID " << payload.process << " from session " << payload.session << " failed to update the clipboard.";
+		this->log() << "PID " << payload.data.process << " from session " << payload.data.session << " failed to update the clipboard.";
 
 	{
 		LOCK_MUTEX(this->pastes_waiting_mutex);
-		auto it2 = this->pastes_waiting.find(payload.session);
+		auto it2 = this->pastes_waiting.find(payload.data.session);
 		if (it2 != this->pastes_waiting.end()){
 			auto &queue = it2->second;
 			for (; queue.size(); queue.pop_front()){
 				auto &copy = queue.front();
 				std::wstring reader;
 				std::wstring explanation;
-				bool ok = this->check_copy(copy.payload.process, copy.payload.session, copy.payload.process_unique_id, explanation, &reader) == FirewallPolicy::Allow;
-				this->log() << "PID " << copy.payload.process << " (" << reader << ") from session " << copy.payload.session << " was waiting while pasting. Wait result: paste is "
+				bool ok = this->check_copy(copy.payload.data.process, copy.payload.data.session, copy.payload.data.process_unique_id, explanation, &reader) == FirewallPolicy::Allow;
+				this->log() << "PID " << copy.payload.data.process << " (" << reader << ") from session " << copy.payload.data.session << " was waiting while pasting. Wait result: paste is "
 					<< (ok ? "" : "not ") << "allowed. Explanation: " << explanation;
 
 				copy.connection->send(ok ? RequestType::Continue : RequestType::Cancel);
@@ -389,10 +386,11 @@ std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> Interceptor::in
 }
 
 void Interceptor::on_copy_end(const Payload &payload, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &connection){
-	auto also = this->internal_on_copy_end(payload, connection);
+	auto also = this->internal_on_copy_end(payload);
 	if (also)
 		also->send(RequestType::Continue);
-	connection->send(RequestType::Continue);
+	if (connection)
+		connection->send(RequestType::Continue);
 }
 
 void Interceptor::on_paste(const Payload &payload, const std::shared_ptr<OutgoingSharedMemory<return_shared_memory_size>> &connection){
@@ -401,20 +399,21 @@ void Interceptor::on_paste(const Payload &payload, const std::shared_ptr<Outgoin
 	std::wstring reader, explanation;
 	{
 		LOCK_MUTEX(this->copies_in_progress_mutex);
-		delay = this->copies_in_progress.find(payload.session) != this->copies_in_progress.end();
+		delay = this->copies_in_progress.find(payload.data.session) != this->copies_in_progress.end();
 		if (!delay)
-			ok = this->check_copy(payload.process, payload.session, payload.process_unique_id, explanation, &reader) == FirewallPolicy::Allow;
+			ok = this->check_copy(payload.data.process, payload.data.session, payload.data.process_unique_id, explanation, &reader) == FirewallPolicy::Allow;
 	}
 	if (!delay){
-		this->log() << "PID " << payload.process << " (" << reader << ") from session " << payload.session << " wants to paste. Result: paste is "
+		this->log() << "PID " << payload.data.process << " (" << reader << ") from session " << payload.data.session << " wants to paste. Result: paste is "
 			<< (ok ? "" : "not ") << "allowed. Explanation: " << explanation;
-		connection->send(ok ? RequestType::Continue : RequestType::Cancel);
+		if (connection)
+			connection->send(ok ? RequestType::Continue : RequestType::Cancel);
 	}else{
-		this->log() << "PID " << payload.process << " from session " << payload.session << " wants to paste but the session is locked, so it will have to wait.";
+		this->log() << "PID " << payload.data.process << " from session " << payload.data.session << " wants to paste but the session is locked, so it will have to wait.";
 		LOCK_MUTEX(this->pastes_waiting_mutex);
-		auto it = this->pastes_waiting.find(payload.session);
+		auto it = this->pastes_waiting.find(payload.data.session);
 		if (it == this->pastes_waiting.end())
-			it = this->pastes_waiting.insert({payload.session, {}}).first;
+			it = this->pastes_waiting.insert({payload.data.session, {}}).first;
 		it->second.push_back({payload, connection});
 	}
 }
@@ -477,6 +476,7 @@ static std::string hash_file(const wchar_t *path, autohandle_t &file){
 }
 
 void Interceptor::check_executables(){
+#ifndef _DEBUG
 	auto &directory = this->get_dll_directory();
 	for (auto p = file_hashes; p->path; p++){
 		auto path = directory + p->path;
@@ -489,6 +489,12 @@ void Interceptor::check_executables(){
 		this->special_executables.insert(get_file_guid(file));
 		this->locked_executables.emplace_back(std::move(file));
 	}
+#endif
+}
+
+bool Interceptor::threads_must_continue(){
+	auto status = this->status.load();
+	return status == Status::Running || status == Status::Starting;
 }
 
 bool Interceptor::can_hook_process(DWORD pid, const wchar_t *path){

@@ -31,19 +31,27 @@ enum class RequestType : LONG{
 	Cancel,
 };
 
-struct Payload{
+struct PayloadData{
 	RequestType type;
 	std::uint32_t process;
 	std::uint64_t process_unique_id;
 	std::uint32_t thread;
 	std::uint32_t session;
 	std::uint32_t next_message;
-	static const size_t extra_data_size = 64 - sizeof(std::uint32_t) * 5 - sizeof(std::uint64_t);
+};
+
+struct Payload{
+	PayloadData data;
+	static const size_t total_size = 64;
+	static const size_t data_size = sizeof(PayloadData);
+	static const size_t extra_data_size = total_size - data_size;
+	//Used to hold additional request-specific data. Current minimum size: 1
 	std::uint8_t extra_data[extra_data_size];
 };
 
 static_assert(std::is_pod<Payload>::value, "Oops!");
-static_assert(sizeof(Payload) == 64, "Oops!");
+static_assert(sizeof(Payload) == Payload::total_size, "Oops!");
+static_assert(Payload::extra_data_size >= 1, "Oops!");
 
 struct Message{
 	Payload payload;
@@ -118,12 +126,12 @@ enum_long_check<T, bool> compare_exchange(T &dst, T2 value, T comparand){
 
 template <size_t N>
 bool push_new_message(basic_shared_memory_block<N> &dst, const Payload &payload, const autohandle_t &event, Md5 &hash){
-	auto type = payload.type;
+	auto type = payload.data.type;
 	LONG index = -1;
 	do{
 		LONG i = 0;
 		for (auto &m : dst.messages){
-			if (compare_exchange(m.payload.type, type, RequestType::Free)){
+			if (compare_exchange(m.payload.data.type, type, RequestType::Free)){
 				index = i;
 				break;
 			}
@@ -136,7 +144,7 @@ bool push_new_message(basic_shared_memory_block<N> &dst, const Payload &payload,
 	LONG head;
 	do{
 		head = dst.first_message;
-		destination.payload.next_message = head;
+		destination.payload.data.next_message = head;
 	}while (!compare_exchange(dst.first_message, index, head));
 #ifdef USE_MD5_DIGEST
 	hash.reset();
@@ -155,7 +163,7 @@ inline Payload read_message(Md5 &hash, volatile Message &message){
 		hash.update(&ret, sizeof(ret));
 	}while (memcmp(hash.get_digest().data, (const void *)message.digest.data, Md5Digest::length) != 0);
 #endif
-	message.payload.type = RequestType::Free;
+	message.payload.data.type = RequestType::Free;
 	return ret;
 }
 
@@ -169,7 +177,7 @@ void pull_messages(basic_shared_memory_block<N> &src, std::vector<Payload> &payl
 	payloads.clear();
 	for (auto index = head; index != invalid;){
 		auto &current = src.messages[index];
-		index = current.payload.next_message;
+		index = current.payload.data.next_message;
 		payloads.push_back(read_message(hash, current));
 	}
 	for (auto &p : payloads)
