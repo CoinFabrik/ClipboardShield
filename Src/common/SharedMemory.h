@@ -218,7 +218,7 @@ public:
 			return *this;
 		}
 		~ConnectionWait(){
-			if (std::uncaught_exception())
+			if (std::uncaught_exceptions())
 				this->cancel();
 		}
 		void cancel(){
