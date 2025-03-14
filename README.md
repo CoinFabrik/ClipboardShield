@@ -59,8 +59,8 @@ Explanation:
 
 ## Log file example
 ```
-[2025-03-13 18:00:46.632] Loading configuration from C:\ProgramData\CoinFabrik Clipboard Shield\config.txt
-[2025-03-13 18:00:46.652] Configuration description:
+Loading configuration from C:\ProgramData\CoinFabrik Clipboard Shield\config.txt
+Configuration description:
 Default policy: allow
 Source rules:
 first party c:\windows\system32\notepad.exe: default deny
@@ -71,7 +71,12 @@ first party C:\Program Files\KeePass\KeePass.exe: default deny
 first party C:\Program Files\Mozilla Firefox\firefox.exe: default allow
     second party C:\Program Files\Google\Chrome\Application\chrome.exe -> deny
 Destination rules:
-
+...
+PID 3356 (C:/Windows/explorer.exe) from session 1 wants to paste. Result: paste is allowed. Explanation: destination = C:/Windows/explorer.exe, using default policy
+PID 3356 (C:/Windows/explorer.exe) from session 1 wants to paste. Result: paste is allowed. Explanation: destination = C:/Windows/explorer.exe, using default policy
+PID 16548 (C:/Users/feder/AppData/Local/slack/app-4.43.43/slack.exe) from session 1 wants to paste. Result: paste is allowed. Explanation: destination = C:/Users/feder/AppData/Local/slack/app-4.43.43/slack.exe, using default policy
+Hooking PID 15204 path: C:/Windows/System32/WerFault.exe
+...
 ```
 
 
