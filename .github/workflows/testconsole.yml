@@ -30,7 +30,7 @@ jobs:
         run: nuget restore Src/ClipboardFirewall.sln
 
       - name: Compiling testconsole..
-        run: msbuild Src/testconsole/testconsole.vcxproj /p:Configuration=Release /p:Platform=x86 
+        run: msbuild Src/testconsole/testconsole.vcxproj
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
