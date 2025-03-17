@@ -1,4 +1,6 @@
-# 🛡️ Clipboard Shield
+<img src="./installer/icons/app_icon.png" alt="ClipboardShield Logo"/>
+
+# Clipboard Shield
 
 🔐 Safeguard your privacy by preventing malicious applications from accessing sensitive data copied to the clipboard.
 
