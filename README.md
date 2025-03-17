@@ -20,7 +20,6 @@ For users who prefer to build from source, follow the detailed instructions avai
 
 ### Supported Platform
 
-* Tested on: Windows 10
 * Requeriments:
   * Windows 10 (64-bit) or Windows 11
   * Administrator privileged (required for installation)
@@ -31,31 +30,8 @@ For users who prefer to build from source, follow the detailed instructions avai
 2. Run `ClipboardShield.exe` to install the application.
 3. Launch `trayicon.exe` to monitor the service status. The application should be running in the system tray.
 
-## 📌 Usage Examples
-To verify the security measures:
-- Use a clipboard monitoring tool to check if unauthorized access is blocked.
-- Run a script that attempts to read the clipboard and confirm that access is denied.
-- Check the log files for any recorded access attempts
-
-### Sample config.txt
-```
-policy allow
-
-source-deny c:\windows\system32\notepad.exe
-    allow c:\windows\system32\notepad.exe
-
-source-deny C:\Program Files\KeePass\KeePass.exe
-    allow C:\Program Files\Mozilla Firefox\firefox.exe
-    allow C:\Program Files\Google\Chrome\Application\chrome.exe
-
-source-allow C:\Program Files\Mozilla Firefox\firefox.exe
-    deny C:\Program Files\Google\Chrome\Application\chrome.exe
-```
-Explanation:
-* By default, any application can copy text to any other application.
-* Data copied from Notepad can only be pasted into Notepad.
-* Data copied from KeePass can only be pasted into Firefox and Chrome.
-* Data copied from Firefox cannot be pasted into Chrome
+## Configuration
+[Configuration and use cases](doc/Configuration.md).
 
 ## Log file example
 ```
@@ -78,7 +54,8 @@ PID 16548 (C:/Users/feder/AppData/Local/slack/app-4.43.43/slack.exe) from sessio
 Hooking PID 15204 path: C:/Windows/System32/WerFault.exe
 ...
 ```
-
+## Known Issues
+* [Clipboard Shield service keep after application uninstall](https://github.com/CoinFabrik/ClipboardShield/issues/1)
 
 ## 💡 Contribution
 If you would like to contribute:
