@@ -1,4 +1,4 @@
-<img src="./installer/icons/app_icon.png" alt="ClipboardShield Logo"/>
+<img src="./Installer/icons/app_icon.png" alt="ClipboardShield Logo" width="128" />
 
 # Clipboard Shield
 
