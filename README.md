@@ -65,6 +65,9 @@ If you would like to contribute:
 - Create a new **branch** (`feature-new-functionality`).
 - Submit a **pull request** with a clear description of the changes.
 
+## ☣️ Standard Security Classification
+-  [Clipboard Data: MITRE ATT&CK® Classification Technique T1115](https://attack.mitre.org/techniques/T1115/)
+
 ## 🌐 About CoinFabrik 
 We - [CoinFabrik](https://www.coinfabrik.com/) - are a research and development company specialized in Web3, with a strong background in cybersecurity. Founded in 2014, we have worked on over 180 blockchain-related projects, EVM based and also for Solana, Algorand, Stellar and Polkadot. Beyond development, we offer security audits through a dedicated in-house team of senior cybersecurity professionals, currently working on code in Substrate, Solidity, Clarity, Rust, TEAL and Stellar Soroban.
 
